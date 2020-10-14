@@ -11,7 +11,7 @@ GH_URL = 'https://api.github.com'
 def get_github_repo(user, repo):
     """Return user/repo content in a python list of dictionaries."""
 
-    url = GH_URL+"/repos/%s/%s/contents" % (user,repo)
+    url = GH_URL+"/repos/{user}/{repo}/contents".format(user=user, repo=repo)
     try:
         req = requests.get(url)
         req.raise_for_status()    # raise HTTPError on non 200 code
