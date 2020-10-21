@@ -40,7 +40,7 @@ def parse_args():
 
 def get_telegram_token(file_name):
     file = open(file_name, "r")
-    return file.read()
+    return file.readline().strip()
 
 def main():
     """Start the bot."""
