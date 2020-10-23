@@ -7,9 +7,10 @@ from datetime import date
 class Note:
     """Note implementation."""
 
-    def __init__(self, user_id, text):
+    def __init__(self, user_id, text, repo_id = 0):
         self.user_id = user_id
         self.text = text
+        self.repo_id = repo_id
         self.date = str(date.today())
 
     def __str__(self):
