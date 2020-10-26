@@ -1,28 +1,50 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from auxillary.test_github_api import get_github_repo, get_github_file
+import os
+import tempfile
+import git
+
+
+GH_URL = 'https://github.com'
 
 
 class Repository:
-    GH_URL = 'https://api.github.com'
-    def __init__(self, owner, name):
+    def __init__(self, owner, repo_name):
         self.owner = owner
-        self.name = name
-        self.files = []
-        self.fetch()
+        self.repo_name = repo_name
+        self.url = GH_URL + "/{owner}/{repo_name}.git".format(
+            owner=self.owner,
+            repo_name=self.repo_name)
+        self.dir = None
+        self.clone()
+
+    def clone(self):
+        """Clone github repository to a temporary dir"""
+        if self.dir:
+            pass
+            # TODO update repo
+        else:
+            self.dir = tempfile.mkdtemp()
+            git.Git(self.dir).clone(self.url, "--bare")
+            self.dir = os.path.join(self.dir, self.repo_name + ".git")
+
+    def get_file_content(self, filepath, branch="master"):
+        """Return file content"""
+        try:
+            content = git.Git(
+                self.dir).show(
+                "{branch}:{filepath}".format(
+                    branch=branch,
+                    filepath=filepath))
+
+        except BaseException:
+            pass
+            # TODO idk how to handle this exception
+        return content
 
 
-    def fetch(self):
-        """Update list of files in a repository"""
-        content = get_github_repo(self.owner, self.name)
-        for file in content:
-            if file["size"] and file["path"] not in self.files:
-                self.files.append(file["path"])
-
-
-    def get_file_content(self, path):
-        """Return utf-8 encoded file content"""
-        if path not in self.files:
-            raise Exception("No such file in a repository")
-        return get_github_file(self.owner, self.name, path)
+if __name__ == "__main__":
+    rep = Repository("keder", "todogit")
+    print(rep.dir)
+    print(rep.get_file_content("README.md"))
