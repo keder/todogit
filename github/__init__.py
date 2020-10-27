@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import tempfile
-import git
+from tempfile import mkdtemp
+from git import Git
 
 
 GH_URL = 'https://github.com'
@@ -13,11 +13,12 @@ class Repository:
     def __init__(self, owner, repo_name):
         self.owner = owner
         self.repo_name = repo_name
-        self.url = GH_URL + "/{owner}/{repo_name}.git".format(
-            owner=self.owner,
-            repo_name=self.repo_name)
         self.dir = None
         self.clone()
+
+    @property
+    def url(self):
+        return GH_URL + "/{0.owner}/{0.repo_name}.git".format(self)
 
     def clone(self):
         """Clone github repository to a temporary dir"""
@@ -25,19 +26,16 @@ class Repository:
             pass
             # TODO update repo
         else:
-            self.dir = tempfile.mkdtemp()
-            git.Git(self.dir).clone(self.url, "--bare")
-            self.dir = os.path.join(self.dir, self.repo_name + ".git")
+            tmp_dir = mkdtemp()
+            Git(tmp_dir).clone(self.url, "--bare")
+            self.dir = os.path.join(tmp_dir, self.repo_name+".git")
 
     def get_file_content(self, filepath, branch="master"):
         """Return file content"""
         try:
-            content = git.Git(
-                self.dir).show(
-                "{branch}:{filepath}".format(
-                    branch=branch,
-                    filepath=filepath))
-
+            repo = Git(self.dir)
+            filename = "{}:{}".format(branch, filepath)
+            content = repo.show(filename)
         except BaseException:
             pass
             # TODO idk how to handle this exception
@@ -47,4 +45,5 @@ class Repository:
 if __name__ == "__main__":
     rep = Repository("keder", "todogit")
     print(rep.dir)
+    print(rep.url)
     print(rep.get_file_content("README.md"))
