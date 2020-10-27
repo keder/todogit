@@ -20,6 +20,8 @@ import command
 import argparse
 import sys
 
+import data_base
+
 # Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -67,4 +69,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    pass
+    #main()
