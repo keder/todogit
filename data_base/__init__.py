@@ -11,7 +11,7 @@ from note import Note
 
 
 STRING_LENGTH = 50
-engine = create_engine('sqlite:///:memory:', echo=True)
+engine = create_engine('sqlite:///:memory:',pool_recycle=3600,echo=True)
 metadata = MetaData()
 
 

@@ -21,6 +21,7 @@ import argparse
 import sys
 
 import data_base
+from note import Note
 
 # Enable logging
 logging.basicConfig(
@@ -52,10 +53,16 @@ def main():
     args = parse_args()
     token = get_telegram_token(args.token_file)
     updater = Updater(token, use_context=True)
-    with data_base.session_scope() as session:
-        command.add_commands(updater.dispatcher, session)
-        updater.start_polling()
-        updater.idle()
+    #with data_base.session_scope() as session:
+    session = data_base.Session()
+    command.add_commands(updater.dispatcher, session)
+    #updater.start_polling()
+    #updater.idle()
+    note = Note(1,"sdfsdf",3)
+    session.add(note)
+    q = session.query(Note).all()
+    print(q[0])
+#        print(type(q))
 
 
 if __name__ == '__main__':
