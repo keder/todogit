@@ -9,9 +9,11 @@ from sqlalchemy.orm import relationship, mapper, sessionmaker
 from github import Repository
 from note import Note
 
+import sqlite3
+creator = lambda: sqlite3.connect('file::memory:?cache=shared', uri=True)
 
 STRING_LENGTH = 50
-engine = create_engine('sqlite:///:memory:',pool_recycle=3600,echo=True)
+engine = create_engine('sqlite://',creator = creator, echo=True)
 metadata = MetaData()
 
 
@@ -25,18 +27,19 @@ repository_property = {}
 note_table = Table('note', metadata,
                     Column('id', Integer, primary_key=True),
                     Column('user_id', Integer),
-                    Column('data', String(STRING_LENGTH)),
                     Column('text', String(STRING_LENGTH)),
                     Column('repo_id',
                             Integer,
                             ForeignKey('repository.id'),
                             nullable=True),
+                    Column('data', String(STRING_LENGTH)),
                     )
 
 
 mapper(Repository, repository_table)
 mapper(Note, note_table)
 
+metadata.bind = engine
 metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
