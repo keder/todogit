@@ -13,13 +13,13 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
-from telegram.ext import Updater
-
 import logging
-import command
 import argparse
 import sys
 
+from telegram.ext import Updater
+
+import command
 import data_base
 
 # Enable logging
@@ -51,21 +51,11 @@ def main():
 
     args = parse_args()
     token = get_telegram_token(args.token_file)
-
-    # Create the Updater and pass it your bot's token.
-    # Make sure to set use_context=True to use the new context based callbacks
-    # Post version 12 this will no longer be necessary
     updater = Updater(token, use_context=True)
-
-    command.add_commands(updater.dispatcher)
-
-    # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
+    with data_base.session_scope() as session:
+        command.add_commands(updater.dispatcher, session)
+        updater.start_polling()
+        updater.idle()
 
 
 if __name__ == '__main__':
